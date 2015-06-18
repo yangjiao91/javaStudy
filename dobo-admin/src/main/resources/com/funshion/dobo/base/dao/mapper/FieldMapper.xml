@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.funshion.dobo.base.dao.mapper.FieldMapper">
+
+	<resultMap type="com.funshion.dobo.base.dao.entity.Field" id="FieldResult">
+		<id column="id" property="id"/>
+		<result column="schema_id" property="schemaId"/>
+		<result column="field_name" property="fieldName"/>
+		<result column="field_type" property="fieldType"/>
+		<result column="default_value" property="defaultValue"/>
+		<result column="position" property="position"/>
+		<result column="remark" property="remark"/>
+	</resultMap>
+	
+	<select id="getFieldsBySchemaId" resultMap="FieldResult">
+		select
+			*
+		from 
+			field
+		where
+			schema_id = #{schemaId}
+		order by
+			position asc
+	</select>
+	
+	<insert id="addField">
+		insert into field
+			(schema_id, field_name, field_type, default_value, position, remark)
+		values
+			(#{field.schemaId}, #{field.fieldName}, #{field.fieldType}, #{field.defaultValue}, #{field.position}, #{field.remark})
+	</insert>
+	
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.funshion.dobo.base.dao.mapper.SchemaMapper">
+
+	<resultMap type="com.funshion.dobo.base.dao.entity.TopicSchema" id="SchemaResult">
+		<id column="id" property="id"/>
+		<result column="schema_id" property="schemaId"/>
+		<result column="topic_id" property="topicId"/>
+		<result column="topic_name" property="topicName"/>
+		<result column="topic_path" property="topicPath"/>
+		<result column="version" property="version"/>
+		<result column="create_time" property="createTime"/>
+		<result column="status" property="status"/>
+		<collection property="fieldList" ofType="com.funshion.dobo.base.dao.entity.Field">
+            <id column="field_id" property="id"/>
+			<result column="schema_id" property="schemaId"/>
+			<result column="field_name" property="fieldName"/>
+			<result column="field_type" property="fieldType"/>
+			<result column="default_value" property="defaultValue"/>
+			<result column="position" property="position"/>
+			<result column="remark" property="remark"/>
+        </collection>
+	</resultMap>
+	
+	<select id="findSchemaListAutoPaging" resultMap="SchemaResult">
+		from 
+			topic_schema a inner join topic b on a.topic_id = b.id
+		where
+			1 = 1
+			<if test=" pagerForm.topicPath != '' and pagerForm.topicPath != null ">
+				and b.path = #{pagerForm.topicPath}
+			</if>
+			<if test=" pagerForm.version != '' and pagerForm.version != null">
+				and a.version = #{pagerForm.version}
+			</if>
+			
+	</select>
+	
+	<select id="getSchemaById" resultMap="SchemaResult">
+		select
+			a.*, b.name as topic_name, b.path as topic_path, c.id as field_id, c.*
+		from
+			topic_schema a inner join topic b on a.topic_id = b.id
+			left join field c on a.id = c.schema_id
+		where
+			a.id = #{id}
+		order by
+			c.position asc
+	</select>
+	
+	<select id="getLatestCheckedSchema" resultMap="SchemaResult">
+		select
+			a.*, b.name as topic_name, b.path as topic_path
+		from  
+			topic_schema a inner join topic b on a.topic_id = b.id
+		where
+			topic_id = #{topicId}
+			and a.status = 1
+		order by 
+			version desc
+		limit 
+			0, 1
+
+			
+	</select>
+	
+	<select id="getPendingSchema" resultMap="SchemaResult">
+		select
+			a.*, b.name as topic_name, b.path as topic_path
+		from  
+			topic_schema a inner join topic b on a.topic_id = b.id
+		where
+			topic_id = #{topicId}
+			and a.status = 0
+		order by 
+			version desc
+		limit 
+			0, 1
+	</select>
+	
+	<select id="getLatestSchema" resultMap="SchemaResult">
+		select
+			a.*, b.name as topic_name, b.path as topic_path
+		from  
+			topic_schema a inner join topic b on a.topic_id = b.id
+		where
+			topic_id = #{topicId}
+		order by 
+			version desc
+		limit 
+			0, 1
+	</select>
+	
+	<insert id="addSchema" useGeneratedKeys="true" keyProperty="schema.id">
+		insert into topic_schema
+			(schema_id, topic_id, version, create_time)
+		values
+			(#{schema.schemaId}, #{schema.topicId}, #{schema.version}, #{schema.createTime})
+	</insert>
+	
+	<update id="update">
+		update
+			topic_schema
+		set
+			status = #{schema.status},
+			schema_id = #{schema.schemaId}
+		where
+			id = #{schema.id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.funshion.dobo.base.dao.mapper.TopicMapper">
+
+	<resultMap type="com.funshion.dobo.base.dao.entity.Topic" id="TopicResult">
+		<id column="id" property="id"/>
+		<result column="name" property="name"/>
+		<result column="path" property="path"/>
+		<result column="owner" property="owner"/>
+		<result column="has_tail" property="hasTail"/>
+		<result column="has_schema" property="hasSchema"/>
+		<result column="latest_version" property="latestVersion"/>
+		<result column="remark" property="remark"/>
+		<result column="create_time" property="createTime"/>
+		<result column="status" property="status"/>
+	</resultMap>
+	
+	<select id="findTopicListAutoPaging" resultMap="TopicResult">
+		from 
+			topic
+		where
+			1 = 1
+			and has_schema = 1
+			<if test=" pagerForm.topicName != '' and pagerForm.topicName != null ">
+				and name = #{pagerForm.topicName}
+			</if>
+			<if test=" pagerForm.owner != '' and pagerForm.owner != null">
+				and owner = #{pagerForm.owner}
+			</if>
+			
+	</select>
+	
+	<select id="findSimpleTopicListAutoPaging" resultMap="TopicResult">
+		from 
+			topic
+		where
+			has_schema = 0
+			<if test=" pagerForm.topicName != '' and pagerForm.topicName != null ">
+				and name = #{pagerForm.topicName}
+			</if>
+			<if test=" pagerForm.owner != '' and pagerForm.owner != null">
+				and owner = #{pagerForm.owner}
+			</if>
+			
+	</select>
+	
+	<select id="getTopicByName" resultMap="TopicResult">
+		select
+			*
+		from 
+			topic
+		where
+			name = #{name}
+			
+	</select>
+	
+	<select id="getTopicById" resultMap="TopicResult">
+		select
+			*
+		from 
+			topic
+		where
+			id = #{id}
+			
+	</select>
+	
+	<select id="getNoSchemaTopics" resultMap="TopicResult">
+		select
+			a.*
+		from 
+			topic a left join topic_schema b on a.id = b.topic_id
+		where
+			b.topic_id is null
+			
+			
+	</select>
+	
+	<select id="getAllTopics" resultMap="TopicResult">
+		select
+			*
+		from 
+			topic
+	</select>
+	
+	<insert id="addTopic" useGeneratedKeys="true" keyProperty="topic.id">
+		insert into topic
+			(name, path, owner, remark, has_tail, has_schema, create_time)
+		values
+			(#{topic.name}, #{topic.path}, #{topic.owner}, #{topic.remark}, #{topic.hasTail}, #{topic.hasSchema}, #{topic.createTime})
+		
+	</insert>
+	<update id="update">
+		update
+			topic
+		set
+			name = #{topic.name},
+			path = #{topic.path},
+			owner = #{topic.owner},
+			remark = #{topic.remark},
+			has_tail = #{topic.hasTail}
+		where
+			id = #{topic.id}
+	</update>
+	
+	<delete id="delSchema">
+		delete from
+			topic_schema
+		where
+			topic_id = #{topicId}
+			and `status` = 0
+	</delete>
+	
+</mapper>
